@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Threads</h1>
+
+  <section class="card">
+    <h2>채널 선택</h2>
+    <div class="row">
+      <select id="channelSelect"></select>
+      <button id="reloadThreadsBtn">새로고침</button>
+    </div>
+    <div id="threadsError" class="error" style="display:none;"></div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>스레드 목록</h2>
+      <div id="threadsList" class="list muted">Loading...</div>
+    </div>
+    <div class="card">
+      <h2>타임라인</h2>
+      <div id="threadTimeline" class="timeline muted">스레드를 선택하면 메시지가 표시됩니다</div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', path='js/threads.js') }}"></script>
+{% endblock %}

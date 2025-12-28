@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Channels</h1>
+
+  <section class="card">
+    <h2>채널 추가</h2>
+    <div class="row">
+      <input id="channelIdInput" placeholder="예: C0750UMQAD6" />
+      <button id="addChannelBtn">추가</button>
+    </div>
+    <p class="hint">채널 신규 등록 시 last_ts는 KST 기준 now-14일로 초기화됩니다.</p>
+    <div id="channelsError" class="error" style="display:none;"></div>
+  </section>
+
+  <section class="card">
+    <h2>등록된 채널</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>channel_id</th>
+          <th>name</th>
+          <th>active</th>
+          <th>last_ts</th>
+          <th>last_ingested_at</th>
+          <th>created_at</th>
+          <th>action</th>
+        </tr>
+      </thead>
+      <tbody id="channelsTbody">
+        <tr><td colspan="7" class="muted">Loading...</td></tr>
+      </tbody>
+    </table>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', path='js/channels.js') }}"></script>
+{% endblock %}

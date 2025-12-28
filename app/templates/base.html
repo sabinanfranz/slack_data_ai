@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{{ title or "Slack Digest Admin" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/styles.css') }}" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand"><a href="/channels">Slack Digest Admin</a></div>
+      <nav class="nav">
+        <a href="/channels" class="{% if request.url.path.startswith('/channels') %}active{% endif %}">Channels</a>
+        <a href="/threads" class="{% if request.url.path.startswith('/threads') %}active{% endif %}">Threads</a>
+        <a href="/stats" class="{% if request.url.path.startswith('/stats') %}active{% endif %}">Stats</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <small>v0 (scaffold)</small>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

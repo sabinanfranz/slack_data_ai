@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Stats</h1>
+
+  <section class="card">
+    <h2>필터</h2>
+    <div class="row">
+      <select id="statsChannelSelect"></select>
+
+      <label class="label">
+        days
+        <input id="daysInput" type="number" value="7" min="1" max="60" />
+      </label>
+
+      <label class="label">
+        top_n
+        <input id="topNInput" type="number" value="10" min="1" max="50" />
+      </label>
+
+      <button id="loadStatsBtn">조회</button>
+    </div>
+    <div id="statsError" class="error" style="display:none;"></div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>요약</h2>
+      <div class="kv">
+        <div><span class="k">기간(KST)</span> <span id="rangeText" class="v">-</span></div>
+        <div><span class="k">총 메시지</span> <span id="totalMessages" class="v">-</span></div>
+        <div><span class="k">활동 스레드 수</span> <span id="totalThreads" class="v">-</span></div>
+        <div><span class="k">유니크 작성자</span> <span id="uniqueUsers" class="v">-</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>일자별 메시지 수</h2>
+      <table class="table">
+        <thead><tr><th>date(KST)</th><th>messages</th></tr></thead>
+        <tbody id="dailyTbody">
+          <tr><td colspan="2" class="muted">No data</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Top Threads (reply_count)</h2>
+      <table class="table">
+        <thead><tr><th>reply_count</th><th>root_text</th><th>thread_ts</th><th>updated(KST)</th></tr></thead>
+        <tbody id="topThreadsTbody">
+          <tr><td colspan="4" class="muted">No data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Top Users (message_count)</h2>
+      <table class="table">
+        <thead><tr><th>messages</th><th>name</th><th>user_id</th></tr></thead>
+        <tbody id="topUsersTbody">
+          <tr><td colspan="3" class="muted">No data</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', path='js/stats.js') }}"></script>
+{% endblock %}

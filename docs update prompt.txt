@@ -1,0 +1,208 @@
+## 목표
+
+* 레포의 `docs/` 폴더에 있는 모든 MD 문서를 **현재 코드/구현 상태에 100% 일치**하도록 업데이트한다.
+* 문서 내용은 “추측/희망사항”을 금지하고, **코드에 존재하는 사실만 Fact로** 쓴다.
+* 아직 구현되지 않은 기능은 반드시 **미구현(TODO)** 섹션으로 분리해 기록한다.
+* 업데이트 기준일(오늘 날짜)과 현재 완료된 Step 상태를 반영한다.
+
+---
+
+## 작업 절차(필수 순서)
+
+1. **레포 전체 스캔**
+
+   * `app/`, `requirements.txt`, `README.md`, `docs/`를 우선 읽고,
+   * 특히 `app/main.py`, `app/config.py`, `app/db.py`, `app/models.py`,
+     `app/routers/*`, `app/templates/*`, `app/static/js/*`를 집중 분석한다.
+
+2. **구현 상태 자동 판별**
+
+   * 아래 항목을 코드로부터 “Done / Partial / Todo”로 판별하고 `docs/08_step_status.md`에 반영:
+
+     * Step1~Step11
+   * 판별 근거를 “어떤 파일/라우트/함수”로 짧게 명시한다.
+
+3. **문서별 업데이트**
+
+   * 아래 “문서 업데이트 규칙”에 따라 `docs/*.md`를 전부 업데이트한다.
+
+4. **자체 검증**
+
+   * 문서에 적힌 엔드포인트/필드/테이블/환경변수가 실제 코드와 일치하는지 교차검증.
+   * docs에 적힌 curl 예시를 실행 가능한 형태로 작성(단, 실제 실행은 하지 않아도 됨).
+
+---
+
+## 문서 업데이트 규칙(매우 중요)
+
+* 각 문서 상단에 아래 메타 헤더를 넣고 최신화:
+
+```md
+> 이 문서는 Slack Digest Admin 프로젝트의 컨텍스트 전달용입니다.
+> 대상: 외부 LLM/개발 에이전트, 신규 합류 개발자
+> 업데이트 기준: YYYY-MM-DD / 구현 범위: Step X까지 (현재 코드 기준)
+```
+
+* Fact / Plan을 명확히 분리:
+
+  * `## 현재 구현(Fact)`
+  * `## 미구현/계획(Plan)`
+* “추정/아마/예정” 같은 표현 금지. 모르면 “코드에서 확인 불가”로 쓴다.
+* 경로/함수/클래스/라우트는 반드시 **레포 내 실제 이름**으로 적는다.
+* 표/리스트는 간결하게, 대신 **예시 JSON / curl**은 반드시 제공(특히 API 계약).
+
+---
+
+## 업데이트 대상 문서(전체)
+
+아래 파일들을 모두 업데이트하라(없으면 생성).
+
+```
+docs/
+  00_overview.md
+  01_architecture.md
+  02_runbook_local.md
+  03_env_vars.md
+  04_db_schema.md
+  05_api_contract.md
+  06_ui_channels.md
+  07_coding_conventions.md
+  08_step_status.md
+  09_next_steps_step4_to_11.md
+  10_glossary.md
+```
+
+---
+
+## 문서별 필수 업데이트 포인트(코드 기반)
+
+### docs/00_overview.md
+
+* 현재 완료된 기능을 “코드 근거”와 함께 요약
+* 현재 제공되는 메뉴(`/channels`, `/threads`, `/stats`) 상태
+* 구현된 API 목록(현재는 channels API)
+* 다음 단계에서 무엇을 하면 되는지 5줄 요약
+
+---
+
+### docs/01_architecture.md
+
+* 현재 구현된 구성요소만 기술
+
+  * web 서비스(실제 존재)
+  * cron 잡은 파일만 존재하는지/실행 가능한지 여부
+* data flow는 “현재”와 “목표”로 분리해서 그림(mermaid 가능)
+
+---
+
+### docs/02_runbook_local.md
+
+* 로컬 실행법(현재 requirements 기준)
+* `.env` 설정(현재 필요한 것: DATABASE_URL)
+* `/healthz` 결과 예시(현재 db true/false)
+* `/channels`에서 CRUD 테스트 시나리오(실제 동작 기준)
+
+---
+
+### docs/03_env_vars.md
+
+* 코드에서 실제 참조하는 env만 “현재 사용”으로 표시
+* `.env.example`와 일치하게 수정
+* 앞으로 필요할 env는 “Plan” 섹션으로 분리
+
+---
+
+### docs/04_db_schema.md
+
+* `app/models.py` 기준으로 테이블/컬럼/제약조건을 정확히 문서화
+* 특히 다음을 반드시 명시:
+
+  * messages UNIQUE(channel_id, ts)
+  * threads UNIQUE(channel_id, thread_ts)
+  * created_at/updated_at 동작
+* (주의) partial unique index 등 구현이 애매하면 “코드에서 확인한 방식” 그대로만 적기
+
+---
+
+### docs/05_api_contract.md
+
+* `app/routers/api_channels.py` 기준으로 문서화
+* 각 엔드포인트마다:
+
+  * 목적
+  * 요청 JSON
+  * 응답 JSON (필드 전부)
+  * 에러 케이스(400/404)
+  * curl 예시
+* idempotent 규칙(POST 중복) 코드대로 명시
+
+---
+
+### docs/06_ui_channels.md
+
+* `templates/channels.html` + `static/js/channels.js` 기준으로
+
+  * 화면 구조
+  * 버튼/이벤트 흐름
+  * 에러 처리 방식
+* “name은 아직 null일 수 있음(Step4에서 Slack info로 채움)” 같은 현재 상태 명시
+
+---
+
+### docs/07_coding_conventions.md
+
+* 현재 코드 스타일을 기준으로 규칙 정의(이미 지켜지는 것만 Fact)
+* 예: 라우터 prefix, DB 세션 패턴 등
+* 앞으로의 권장 규칙은 Plan으로 분리
+
+---
+
+### docs/08_step_status.md
+
+* Step 1~11 테이블
+* Done/Partial/Todo
+* 각 Step별 “근거 파일/라우트” 1줄
+
+---
+
+### docs/09_next_steps_step4_to_11.md
+
+* “현재 코드 상태에서” 다음 스텝을 어떻게 진행해야 하는지
+* 각 스텝마다:
+
+  * 수정/추가할 파일 리스트
+  * 구현해야 할 함수/엔드포인트 목록
+  * 최소 완료 기준
+
+---
+
+### docs/10_glossary.md
+
+* 현재 코드/스키마에서 실제 쓰는 용어 중심으로 정리
+* Slack 관련 용어는 Plan로
+
+---
+
+## 산출물 품질 기준
+
+* 문서가 코드와 불일치하면 실패로 간주한다.
+* 문서만 보고 외부 LLM이 Step4 착수 가능해야 한다.
+* 중복 설명은 줄이고, 대신 링크로 연결한다.
+
+  * 예: Overview → API Contract / DB Schema로 링크
+
+---
+
+## (옵션) CHANGELOG 자동 업데이트
+
+가능하면 `docs/CHANGELOG.md`를 추가하고,
+
+* “이번 업데이트에서 바뀐 문서/주요 변경점”을 5~10줄로 기록하라.
+
+---
+
+이 지시문을 실행한 후, 최종적으로 Codex는 아래를 출력해라:
+
+1. 업데이트된 docs 파일 목록
+2. “현재 Done으로 판정된 Step”
+3. “다음으로 착수할 Step(권장 1개)”
