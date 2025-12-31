@@ -17,6 +17,8 @@
   TZ=Asia/Seoul
   # SLACK_BOT_TOKEN=xoxb-your-token (채널 등록/ingest 시 필요)
   # OPENAI_API_KEY=sk-... (daily_report 시 필요)
+  # OPENAI_MODEL=gpt-4o-mini
+  # MAX_MESSAGES_PER_THREAD_FOR_REPORT=200
   ```
   *SQLite도 가능하지만 `stats`는 Postgres 시간 함수(`timezone`) 의존으로 SQLite에서 에러 발생.*
 - 로컬 Postgres(docker):
@@ -31,6 +33,7 @@
 - 데이터 적재/요약:
   - 수집: `python -m app.jobs.ingest` (Slack 토큰/DB 필요)
   - 데일리 리포트: `python -m app.jobs.daily_report` (Slack 데이터 + OpenAI 키 필요, .env를 자동 로드하며 OPENAI_API_KEY/DATABASE_URL 없으면 명확한 RuntimeError로 종료)
+  - 스레드 리포트: `python -m app.jobs.thread_reports` (옵션: `--channel`, `--days`, `--limit`, `--force`; OpenAI 키 필요, .env 자동 로드)
 - 패키지: requirements.txt에 `openai>=1.55.0` 포함(Structured Outputs용).
 
 ## 미구현/계획(Plan)

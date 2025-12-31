@@ -51,6 +51,12 @@ class Channel(Base, TimestampMixin):
         DateTime(timezone=True), nullable=True
     )
 
+    ingest_status: Mapped[str | None] = mapped_column(Text, nullable=True, default="idle")
+    ingest_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ingest_finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    ingest_error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ingest_last_result_json: Mapped[dict | None] = mapped_column(JSONB_TYPE, nullable=True)
+
     messages = relationship("Message", back_populates="channel", lazy="noload")
     threads = relationship("Thread", back_populates="channel", lazy="noload")
 
@@ -152,6 +158,29 @@ class ThreadSummary(Base, TimestampMixin):
 
     source_latest_ts: Mapped[str] = mapped_column(Text, nullable=False)
     source_latest_ts_epoch: Mapped[float] = mapped_column(Float, nullable=False)
+
+
+class ThreadReport(Base):
+    __tablename__ = "thread_reports"
+    __table_args__ = (
+        UniqueConstraint("channel_id", "thread_ts", name="uq_thread_reports_channel_threadts"),
+        Index("ix_thread_reports_channel_updated_at", "channel_id", "updated_at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+
+    channel_id: Mapped[str] = mapped_column(Text, nullable=False)
+    thread_ts: Mapped[str] = mapped_column(Text, nullable=False)
+
+    report_json: Mapped[dict] = mapped_column(JSONB_TYPE, nullable=False)
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+
+    source_latest_ts: Mapped[str] = mapped_column(Text, nullable=False)
+    source_latest_ts_epoch: Mapped[float] = mapped_column(Float, nullable=False)
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
 
 class DailyReport(Base):

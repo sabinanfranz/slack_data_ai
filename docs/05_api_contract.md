@@ -53,6 +53,24 @@ curl -s -X PATCH http://127.0.0.1:8000/api/channels/C0750UMQAD6 \
   -d '{"is_active":false}'
 ```
 
+### POST /channels/{channel_id}/ingest
+- 목적: 단일 채널 Slack 수집을 웹에서 트리거(BackgroundTasks).
+- 요청 예시: `{ "backfill_days": 14, "mode": "full" }` (mode: full | threads_only)
+- 응답: `{ "status": "started", "channel_id": "...", "job_id": "..." }`
+- 에러: 404(채널 없음), 400(비활성/SLACK_BOT_TOKEN 없음), 409(이미 running).
+- curl:
+```bash
+curl -s -X POST http://127.0.0.1:8000/api/channels/C0750UMQAD6/ingest \
+  -H 'Content-Type: application/json' \
+  -d '{"backfill_days":14,"mode":"full"}'
+```
+
+### GET /channels/{channel_id}/ingest-status
+- 목적: 채널 ingest 상태 조회.
+- 응답 필드: ingest_status("idle|running|ok|error"), ingest_started_at, ingest_finished_at, ingest_error_message, ingest_last_result_json.
+- 에러: 404(채널 없음).
+- curl: `curl -s http://127.0.0.1:8000/api/channels/C0750UMQAD6/ingest-status`
+
 ## Threads
 
 ### GET /channels/{channel_id}/threads
@@ -76,6 +94,33 @@ curl -s -X PATCH http://127.0.0.1:8000/api/channels/C0750UMQAD6 \
 - 응답 필드: channel_id, channel_name, days, top_n, start_date_kst, end_date_kst_exclusive, total_messages, total_threads, unique_users, daily_messages[{date_kst,message_count}], top_threads[{thread_ts,reply_count,root_text,updated_at}], top_users[{user_id,name,message_count}].
 - 에러: 404(채널 없음).
 - curl: `curl -s "http://127.0.0.1:8000/api/channels/C0750UMQAD6/stats?days=7&top_n=10"`
+
+## Thread Reports
+
+### GET /thread-reports/channels
+- 목적: 활성 채널 목록(리포트 페이지용).
+- 응답 필드: channel_id, name.
+- curl: `curl -s http://127.0.0.1:8000/api/thread-reports/channels`
+
+### GET /thread-reports
+- 목적: 채널별 스레드 리스트(리포트 존재 여부 포함).
+- 쿼리: `channel_id`(필수), `limit`(1~200, 기본 50).
+- 응답 필드: channel_id, thread_ts, reply_count, updated_at, title(루트 메시지 앞부분), one_line(ThreadSummary one_line), has_report(boolean).
+- 에러: 404(채널 없음).
+- curl: `curl -s "http://127.0.0.1:8000/api/thread-reports?channel_id=C0750UMQAD6&limit=50"`
+
+### GET /thread-reports/{channel_id}/{thread_ts}
+- 목적: 단일 스레드 리포트 상세 조회.
+- 응답 필드: channel_id, thread_ts, report_json(LLM 결과), model, source_latest_ts, source_latest_ts_epoch, updated_at, meta{latest_epoch, report_source_latest_ts_epoch, is_stale}.
+- 에러: 404(리포트 없음/채널/스레드 없음).
+- curl: `curl -s "http://127.0.0.1:8000/api/thread-reports/C0750UMQAD6/1700000000.0"`
+
+### POST /thread-reports/{channel_id}/{thread_ts}/refresh
+- 목적: 리포트 강제 생성/갱신(LLM 호출 필요).
+- 쿼리/바디: force는 쿼리스트링 또는 기본값 False.
+- 응답 필드: status, channel_id, thread_ts, report_json, model, source_latest_ts, source_latest_ts_epoch, updated_at, meta{latest_epoch, report_source_latest_ts_epoch, is_stale}.
+- 에러: 404(채널/스레드 없음), 500(LLM 키/DB 오류 등).
+- curl: `curl -s -X POST "http://127.0.0.1:8000/api/thread-reports/C0750UMQAD6/1700000000.0/refresh"`
 
 ## Utils
 

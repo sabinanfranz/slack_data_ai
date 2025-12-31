@@ -15,6 +15,8 @@
 - text_html: Slack 텍스트를 `app/text_render.py`로 변환한 안전한 HTML.
 - one_line: thread_summaries.summary_json.one_line 값(스레드 리스트에서 사용).
 - daily_reports.channel_id="__ALL__": 모든 채널 리포트에 대한 센티널 값.
+- thread_summaries: 스레드 요약 JSON을 저장하는 테이블(LLM ThreadSummaryOut).
+- thread_reports: 스레드 전체를 주제/참석자 역할/일별 진척으로 분석한 리포트 JSON 테이블(LLM ThreadReportOut).
 - TZ: 기본 Asia/Seoul, KST 변환에 사용.
 
 ## 미구현/계획(Plan)

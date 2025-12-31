@@ -8,10 +8,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-* http://127.0.0.1:8000/healthz
-* http://127.0.0.1:8000/channels
-* http://127.0.0.1:8000/threads
-* http://127.0.0.1:8000/stats
+- http://127.0.0.1:8000/healthz
+- http://127.0.0.1:8000/channels
+- http://127.0.0.1:8000/threads
+- http://127.0.0.1:8000/stats
+- http://127.0.0.1:8000/thread-reports
 
 ## Local Postgres (docker)
 ```bash
@@ -61,8 +62,8 @@ uvicorn app.main:app --reload
 
 렌더링 테스트:
 ```bash
-curl -s -X POST http://127.0.0.1:8000/api/utils/render \\
-  -H "Content-Type: application/json" \\
+curl -s -X POST http://127.0.0.1:8000/api/utils/render \
+  -H "Content-Type: application/json" \
   -d '{"text":"Hello <@U123> <!here> <#C123|general> <https://example.com|link> `code`","user_map":{"U123":"Alice"}}' | jq
 ```
 
@@ -105,7 +106,15 @@ python -m app.jobs.daily_report --date 2025-12-22
 
 결과:
 - thread_summaries 테이블에 스레드 요약 JSON 저장
-- daily_reports 테이블에 채널별/전체(\"__ALL__\") 리포트 JSON 저장
+- daily_reports 테이블에 채널별/전체("__ALL__") 리포트 JSON 저장
+
+## Thread Reports
+- 스레드+댓글 전체를 분석해 주제/참석자 역할/일별 진척을 저장
+- 실행:
+```bash
+python -m app.jobs.thread_reports --days 14 --limit 200
+```
+- 조회: `/thread-reports` 메뉴 또는 `GET /api/thread-reports...`
 
 ## Deploy to Railway (Runbook)
 
@@ -122,7 +131,7 @@ python -m app.jobs.daily_report --date 2025-12-22
 ### 1) Railway 프로젝트 생성 + Postgres 추가
 1. Railway에서 새 Project 생성
 2. Add Service → PostgreSQL 추가
-3. Postgres 서비스가 제공하는 DATABASE_URL을 web/cron 서비스에 연결합니다.
+3. Postgres 서비스가 제공하는 DATABASE_URL을 web/ingest-cron/report-cron 서비스에 연결합니다.
    - DATABASE_URL은 Postgres 서비스 변수로 제공됩니다.
 
 ### 2) Shared Variables (권장)
@@ -132,7 +141,7 @@ Project Settings → Shared Variables에서 아래를 만들고, web/ingest-cron
 - OPENAI_API_KEY
 - OPENAI_MODEL (예: gpt-4o-mini)
 - TZ=Asia/Seoul
-- (옵션) MAX_THREADS_POLL_PER_RUN, MAX_MESSAGES_PER_THREAD_FOR_SUMMARY, MAX_THREADS_PER_DAILY_REPORT, SUMMARY_LANGUAGE
+- (옵션) MAX_THREADS_POLL_PER_RUN, MAX_MESSAGES_PER_THREAD_FOR_SUMMARY, MAX_MESSAGES_PER_THREAD_FOR_REPORT, MAX_THREADS_PER_DAILY_REPORT, SUMMARY_LANGUAGE
 
 ### 3) web 서비스 생성
 1. GitHub repo에서 Deploy (또는 Railway CLI로 railway up)

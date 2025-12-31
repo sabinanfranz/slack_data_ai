@@ -76,7 +76,24 @@ function renderThreadsList(channelId, rows) {
 
   if (!rows.length) {
     container.classList.add("muted");
-    container.textContent = "스레드가 없습니다. (ingest 실행 필요)";
+    const msg = document.createElement("div");
+    msg.textContent = "스레드가 없습니다. (ingest 실행 필요)";
+    const btn = document.createElement("button");
+    btn.textContent = "Ingest Now";
+    btn.addEventListener("click", async () => {
+      try {
+        await apiJson(`/api/channels/${encodeURIComponent(channelId)}/ingest`, {
+          method: "POST",
+          body: JSON.stringify({ backfill_days: 14, mode: "full" }),
+        });
+        // brief wait then reload threads
+        setTimeout(() => loadThreads(channelId), 2000);
+      } catch (e) {
+        showError(e.message);
+      }
+    });
+    container.appendChild(msg);
+    container.appendChild(btn);
     return;
   }
 
@@ -171,6 +188,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   try {
     const channels = await loadChannelsIntoSelect();
     const sel = $("#channelSelect");
+    const params = new URLSearchParams(window.location.search);
+    const initialId = params.get("channel_id");
 
     sel.addEventListener("change", async () => {
       const id = sel.value;
@@ -183,7 +202,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     if (channels.length) {
-      await loadThreads(channels[0].channel_id);
+      const targetId =
+        initialId && channels.find((c) => c.channel_id === initialId)
+          ? initialId
+          : channels[0].channel_id;
+      sel.value = targetId;
+      await loadThreads(targetId);
     }
   } catch (e) {
     showError(e.message);

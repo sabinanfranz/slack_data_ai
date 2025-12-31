@@ -28,3 +28,11 @@ def stats_page(request: Request):
         "stats.html",
         {"request": request, "title": "Stats"},
     )
+
+
+@router.get("/thread-reports", response_class=HTMLResponse)
+def thread_reports_page(request: Request):
+    return templates.TemplateResponse(
+        "thread_reports.html",
+        {"request": request, "title": "Thread Reports"},
+    )

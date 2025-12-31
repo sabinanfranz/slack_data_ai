@@ -10,7 +10,7 @@
 - 타임스탬프: `created_at/updated_at`는 timezone-aware, server_default=now(), `onupdate=now()` (해당 컬럼 가진 모델에 한함).
 
 ### channels (Channel)
-- 컬럼: channel_id(PK Text), name(Text, nullable), is_active(Boolean, default True), last_ts(Text, nullable), last_ts_epoch(Float, nullable), last_ingested_at(DateTime tz, nullable), created_at/updated_at.
+- 컬럼: channel_id(PK Text), name(Text, nullable), is_active(Boolean, default True), last_ts(Text, nullable), last_ts_epoch(Float, nullable), last_ingested_at(DateTime tz, nullable), ingest_status(Text, default idle), ingest_started_at(DateTime tz, nullable), ingest_finished_at(DateTime tz, nullable), ingest_error_message(Text, nullable), ingest_last_result_json(JSONB/JSON, nullable), created_at/updated_at.
 - 관계: messages, threads (lazy=noload).
 
 ### users_cache (UserCache)
@@ -27,6 +27,10 @@
 ### thread_summaries (ThreadSummary)
 - 컬럼: id(PK Integer), channel_id(Text), thread_ts(Text), summary_json(JSONB/JSON), model(Text), source_latest_ts(Text), source_latest_ts_epoch(Float), created_at/updated_at(DateTime tz, server_default=now, onupdate=now via mixin).
 - 제약/인덱스: UNIQUE(channel_id, thread_ts) `uq_thread_summaries_channel_threadts`; 인덱스 `ix_thread_summaries_channel_updated_at`(channel_id, updated_at).
+
+### thread_reports (ThreadReport)
+- 컬럼: id(PK Integer), channel_id(Text), thread_ts(Text), report_json(JSONB/JSON), model(Text), source_latest_ts(Text), source_latest_ts_epoch(Float), updated_at(DateTime tz, server_default=now, onupdate=now).
+- 제약/인덱스: UNIQUE(channel_id, thread_ts) `uq_thread_reports_channel_threadts`; 인덱스 `ix_thread_reports_channel_updated_at`(channel_id, updated_at).
 
 ### daily_reports (DailyReport)
 - 컬럼: id(PK Integer), report_date(Date), channel_id(Text, NOT NULL), payload_json(JSONB/JSON), model(Text), created_at(DateTime tz, server_default=now).

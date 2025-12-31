@@ -36,6 +36,11 @@ class ChannelOut(BaseModel):
     last_ingested_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    ingest_status: str | None = None
+    ingest_started_at: datetime | None = None
+    ingest_finished_at: datetime | None = None
+    ingest_error_message: str | None = None
+    ingest_last_result_json: dict | None = None
 
     class Config:
         from_attributes = True

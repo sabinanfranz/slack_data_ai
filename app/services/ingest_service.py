@@ -33,10 +33,10 @@ def _is_normal_message(msg: dict) -> bool:
 
 
 def ingest_channel_history_roots(
-    db: Session, slack: SlackClient, channel: Channel
+    db: Session, slack: SlackClient, channel: Channel, *, backfill_days: int = 14
 ) -> dict:
     if not channel.last_ts_epoch or not channel.last_ts:
-        dt = _now_kst() - timedelta(days=14)
+        dt = _now_kst() - timedelta(days=backfill_days)
         ep = _epoch(dt)
         channel.last_ts_epoch = ep
         channel.last_ts = str(ep)
@@ -421,3 +421,27 @@ def ingest_single_thread_replies(
         "new_reply": new_reply,
         "new_last_reply_ts": thread.last_reply_ts,
     }
+
+
+def ingest_channel(
+    db: Session,
+    slack: SlackClient,
+    *,
+    channel: Channel,
+    backfill_days: int = 14,
+    mode: str = "full",
+) -> dict:
+    """
+    Ingest a single channel (history + replies).
+    mode: "full" (history + replies) or "threads_only" (replies polling only).
+    """
+    result = {}
+    if mode not in {"full", "threads_only"}:
+        mode = "full"
+
+    if mode == "full":
+        result["history"] = ingest_channel_history_roots(
+            db, slack, channel, backfill_days=backfill_days
+        )
+    result["replies"] = ingest_channel_thread_replies(db, slack, channel)
+    return result

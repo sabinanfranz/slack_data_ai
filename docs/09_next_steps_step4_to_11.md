@@ -16,3 +16,4 @@
 - Step9 Stats: SQLite 호환 분기(파이썬 측 KST 변환) 및 간단한 쿼리 캐싱/메트릭 추가 검토(`app/services/stats_service.py`, `app/static/js/stats.js`).
 - Step10 LLM: 오류/timeout 시 재시도 정책과 품질 로깅 추가, OpenAI 모델/토큰 검증 스크립트 마련(`app/llm_client.py`, `app/jobs/daily_report.py`).
 - Step11 운영: ingest/report 주기 실행을 위한 cron/워크플로 구성(Railway cron, GitHub Actions 등)과 `.env`/Secret 관리 가이드 추가(`scripts/*.sh`, README/Runbook).
+- Thread Reports: UI에 refresh(POST /api/thread-reports/{channel_id}/{thread_ts}/refresh) 버튼/상태 표시 추가, 품질 로깅/리트라이 및 캐싱 검토(`app/static/js/thread_reports.js`, `app/services/thread_report_service.py`).

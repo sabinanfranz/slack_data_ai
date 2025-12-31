@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Thread Reports</h1>
+
+  <section class="card">
+    <h2>채널 선택</h2>
+    <div class="row">
+      <select id="trChannelSelect"></select>
+      <button id="trReloadBtn">새로고침</button>
+    </div>
+    <div id="trError" class="error" style="display:none;"></div>
+  </section>
+
+  <section class="grid">
+    <div class="card" style="min-height: 400px;">
+      <h2>스레드 목록</h2>
+      <div id="trThreadList" class="list muted">Loading...</div>
+    </div>
+    <div class="card" style="min-height: 400px;">
+      <h2>리포트</h2>
+      <div class="row" style="margin-bottom:8px;">
+        <button id="trRefreshBtn" disabled>즉시 생성</button>
+        <span id="trStatusBadge" class="muted" style="margin-left:8px;">-</span>
+      </div>
+      <div id="trReport" class="timeline muted">채널과 스레드를 선택하세요</div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', path='js/thread_reports.js') }}"></script>
+{% endblock %}
